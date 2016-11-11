@@ -1,5 +1,6 @@
 #include <iostream>
-#include <string>
+#include <string.h>
+//#include <cstring>
 #include <algorithm>
 #include <fstream>
 #include <vector>
@@ -37,21 +38,25 @@ class Dictionary{
 	// Insert a Word into the hashtable
 	void Insert(Word newWord){
 		int key = Word :: key(newWord.word,tableSize);
-		hashtable.insert( hashtable.begin() + key, newWord); 
+		//hashtable.insert( hashtable.begin() + key, newWord); 
+		hashtable[key] = newWord;
+		//cout<<"\nSize after insert:"<<hashtable.size();
 	}
 
 	void Display(){
 		for(auto const& a : hashtable) 
-			if(a.word=="\0")
+			/*if(a.word=="\0")
 				continue;
-			else
+			else*/
 				cout << endl << a.word << ":" << a.definition;
 	}
 	
 	// Check if a word exists in the table
 	bool Contains(string word){
 		int key = Word :: key(word,tableSize);
-		if( hashtable[key].word != "\0" )
+		//cout<<"\nLooking for word "<< word << "\nKey:"<< key << endl;
+		//cout<<"\nmeaning exists: "<<hashtable[key].definition;
+		if( !word.compare(hashtable[key].word))
 			return true;
 		return false;
 	}
@@ -72,7 +77,7 @@ class Dictionary{
 	
 	bool isPrime(int n){
 		for( int i=2; i < n; i++)
-			if( n%i )
+			if( n % i == 0 )
 				return false;
 		return true;
 	}
@@ -81,12 +86,14 @@ class Dictionary{
 	void Rehash(){
 
 		int newSize = 2*tableSize;
+		
+		//cout<< "\n\n\n\n\n\n\n\n\n\nRehashing table\n\n\n\n\n\n\n\n\n\n";
+		
 		while(!isPrime(newSize))
 			newSize++;
 		tableSize = newSize;
 		hashtable.resize(newSize);
 
-		cout<< "\n\n\n\n\n\n\n\n\n\nRehashing table\n\n\n\n\n\n\n\n\n\n";
 		for(auto const& a : hashtable) 
 			if(a.word=="\0")
 				continue;
@@ -137,8 +144,12 @@ int main(int argc, char *argv[]){
         if(tmp=="\0")
         	break;
         Word newWord = getWord(tmp);
+        if(!table.Contains(newWord.word))
+        	number_of_words++;
         table.Insert(newWord);
-  		number_of_words= table.hashtable.size()-table.tableSize;
+  		//number_of_words= table.hashtable.size()-table.tableSize;
+	    //number_of_words= table.hashtable.size();
+		
 	    loadFactor = (float)number_of_words/table.tableSize;
   		if( loadFactor > 1.0)
   			table.Rehash();
@@ -153,33 +164,50 @@ int main(int argc, char *argv[]){
   		<<"\nLoad factor: "
   		<< loadFactor << endl;
   	
-  	if(table.Contains("JOHNNY")){
-  			int key = Word :: key(input_word,table.tableSize);
+  	/*
+  	if(table.Contains("EXPLAIN")){
+  			int key = Word :: key("EXPLAIN",table.tableSize);
 			cout<< table.hashtable[key].word << ": "<< table.hashtable[key].definition << endl;
   		}
-  	else
-  		cout<<"Doesn't contain word\n";
+  	if(table.Contains("WALY")){
+  			int key = Word :: key("WALY",table.tableSize);
+			cout<< table.hashtable[key].word << ": "<< table.hashtable[key].definition << endl;
+  		}
+  	if(table.Contains("PLASTERY")){
+  			int key = Word :: key("PLASTERY",table.tableSize);
+			cout<< table.hashtable[key].word << ": "<< table.hashtable[key].definition << endl;
+  		}
+  	if(table.Contains("HONEYLESS")){
+  			int key = Word :: key("HONEYLESS",table.tableSize);
+			cout<< table.hashtable[key].word << ": "<< table.hashtable[key].definition << endl;
+  		}
+  	if(table.Contains("LINGUISTICS")){
+  			int key = Word :: key("LINGUISTICS",table.tableSize);
+			cout<< table.hashtable[key].word << ": "<< table.hashtable[key].definition << endl;
+  		}
   	
+  	*/
 
-  	/*
   	string input_word;	
   	
 	while(1){
   		cout<<"Enter word:";
   		cin >> input_word;
-  		cout<< endl<<input_word;
+  		//cout<< endl<<input_word;
   		//if(c.eof())
   		//	break;
-  		for(int i=0 ; input_word[i]='\0' ; i++)
-			input_word[i]=toupper(input_word[i]);
-  		if(table.Contains(input_word)){
+  		char c;
+  		for(int i=0 ; input_word[i] ; i++)
+			if(islower(input_word[i]))
+				input_word[i]=toupper(input_word[i]);
+			if(table.Contains(input_word)){
   			int key = Word :: key(input_word,table.tableSize);
 			cout<< table.hashtable[key].word << ": "<< table.hashtable[key].definition << endl;
   		}
   		else
   			cout<<"Doesn't contain word\n";
   	}
-	*/
+	
 
 	return 0;
 }
