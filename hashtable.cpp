@@ -14,16 +14,19 @@ class Word{
 		string definition;
 
 	// Calculate the key value for a string	
-	static int key( string w, int size ){
+	static unsigned int key( string w, int size ){
 
-		int hash = 0;
+		unsigned int hash = 0;
 		for( char c : w)
 			hash = 37 * hash + c;
-
+		cout<<"\nkey is:"<< hash % size;
 		return hash % size;
 	}
 
-	// Parse json to get Word
+	
+};
+
+// Parse json to get Word
 	Word getWord(string w){
 
 		Word temp;
@@ -41,8 +44,6 @@ class Word{
 		return temp;
 	}
 
-};
-
 class Dictionary{
 	public:
 	vector <Word> hashtable;
@@ -52,13 +53,13 @@ class Dictionary{
 
 	Dictionary(){
 		tableSize = 101;
+		hashtable.resize(tableSize);
 	}
 	// Insert a Word into the hashtable
 	void Insert(Word newWord){
-		
 		int key = Word :: key(newWord.word,tableSize);
-		cout<< "\nin insert";
-		hashtable[key] = newWord; 
+		//hashtable.push_back(newWord);
+		hashtable.insert( hashtable.begin() + key, newWord); 
 
 	}
 
@@ -98,7 +99,7 @@ class Dictionary{
 	fstream f;
 	string tmp;
 	int loadFactor = 0;
-	Word temp;
+	//Word temp;
 	Dictionary table;
 	
 	// Open dictionary.json file
@@ -109,10 +110,11 @@ class Dictionary{
     //Loop to parse through the file
     while(!f.eof()){	
         getline(f,tmp); 
+        if(tmp=="\0")
+        	break;
         cout<<endl<<tmp;
-        Word newWord = temp.getWord(tmp);
+        Word newWord = getWord(tmp);
         table.Insert(newWord);
-  		cout<<"\ninsert word done";
   		//loadFactor = number_of_words/table.tableSize;
   		//number_of_words= table.hashtable.size()/sizeof(temp);
   	}
