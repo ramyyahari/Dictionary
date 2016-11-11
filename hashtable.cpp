@@ -14,9 +14,13 @@ class Word{
 		string definition;
 
 	// Calculate the key value for a string	
-	int key(string w){
+	static int key( string w, int size ){
 
-	return 0;
+		int hash = 0;
+		for( char c : w)
+			hash = 37 * hash + c;
+
+		return hash % size;
 	}
 
 	// Parse json to get Word
@@ -42,32 +46,47 @@ class Word{
 class Dictionary{
 	public:
 	vector <Word> hashtable;
+	int tableSize;
 
+	// Constructor
 
+	Dictionary(){
+		tableSize = 101;
+	}
 	// Insert a Word into the hashtable
 	void Insert(Word newWord){
-
-		int key = Word :: key(newWord.word);
-
+		
+		int key = Word :: key(newWord.word,tableSize);
+		cout<< "\nin insert";
+		hashtable[key] = newWord; 
 
 	}
 
+	void Display(){
+		for(auto const& a : hashtable) 
+			cout << endl << a.word << ":" << a.definition;
+	}
+	/*
 	// Check if a word exists in the table
 	bool Contains(string word){
-
+		int key = Word :: key(word,tableSize);
+		if( strcmp(hashtable[key].word,word) == 0 )
+			return true;
 		return false;
 	}
 
 	// Search and delete a word from the table  
 	void Delete(string word){
-
+		int key = Word :: key(word,tableSize);
+		hashtable[key].word = "\0";
+		hashtable[key].definition = "\0";
 	return;
 	}
 
 	// If table has high load factor then rehash
 	void Rehash(){
 
-	}
+	}*/
 };
 	int main(int argc, char *argv[]){
 	/*
@@ -78,18 +97,33 @@ class Dictionary{
 
 	fstream f;
 	string tmp;
-
+	int loadFactor = 0;
 	Word temp;
 	Dictionary table;
+	
 	// Open dictionary.json file
     f.open(argv[1]);
 
+    int number_of_words= 0;
+  	
     //Loop to parse through the file
     while(!f.eof()){	
         getline(f,tmp); 
-        Word newWord = temp.getWord(tmp); 
-  		table.Insert(newWord);
+        cout<<endl<<tmp;
+        Word newWord = temp.getWord(tmp);
+        table.Insert(newWord);
+  		cout<<"\ninsert word done";
+  		//loadFactor = number_of_words/table.tableSize;
+  		//number_of_words= table.hashtable.size()/sizeof(temp);
   	}
+
+  	table.Display();
+  	cout<<"\nNumber of words in the dictionary: "
+  		<< number_of_words
+  		<<"\n Table size: "
+  		<< table.tableSize
+  		<<"\n Load factor: "
+  		<< loadFactor;
 
 	return 0;
 	}
