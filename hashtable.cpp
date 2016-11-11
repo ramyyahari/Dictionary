@@ -19,7 +19,7 @@ class Word{
 		unsigned int hash = 0;
 		for( char c : w)
 			hash = 37 * hash + c;
-		cout<<"\nkey is:"<< hash % size;
+		//cout<<"\nkey is:"<< hash % size;
 		return hash % size;
 	}
 
@@ -60,34 +60,42 @@ class Dictionary{
 		int key = Word :: key(newWord.word,tableSize);
 		//hashtable.push_back(newWord);
 		hashtable.insert( hashtable.begin() + key, newWord); 
-
 	}
 
 	void Display(){
 		for(auto const& a : hashtable) 
-			cout << endl << a.word << ":" << a.definition;
+			if(a.word=="\0")
+				continue;
+			else
+				cout << endl << a.word << ":" << a.definition;
 	}
-	/*
+	
 	// Check if a word exists in the table
 	bool Contains(string word){
 		int key = Word :: key(word,tableSize);
-		if( strcmp(hashtable[key].word,word) == 0 )
+		if( hashtable[key].word != "\0" )
 			return true;
 		return false;
 	}
-
+	
 	// Search and delete a word from the table  
-	void Delete(string word){
+	Word Delete(string word){
 		int key = Word :: key(word,tableSize);
-		hashtable[key].word = "\0";
-		hashtable[key].definition = "\0";
-	return;
+		Word temp;
+			
+		if(!Contains(word)){
+			return temp;
+		}
+		
+		temp = hashtable[key];
+		hashtable.erase( hashtable.begin() + key);
+		return temp;
 	}
-
+	
 	// If table has high load factor then rehash
 	void Rehash(){
 
-	}*/
+	}
 };
 	int main(int argc, char *argv[]){
 	/*
@@ -112,20 +120,19 @@ class Dictionary{
         getline(f,tmp); 
         if(tmp=="\0")
         	break;
-        cout<<endl<<tmp;
         Word newWord = getWord(tmp);
         table.Insert(newWord);
   		//loadFactor = number_of_words/table.tableSize;
-  		//number_of_words= table.hashtable.size()/sizeof(temp);
+  		//number_of_words= table.hashtable.size()/sizeof(newWord);
   	}
 
   	table.Display();
-  	cout<<"\nNumber of words in the dictionary: "
-  		<< number_of_words
-  		<<"\n Table size: "
-  		<< table.tableSize
-  		<<"\n Load factor: "
-  		<< loadFactor;
+  	//cout<<"\nNumber of words in the dictionary: "
+  	//	<< number_of_words
+  	cout<<"\n Table size: "
+  		<< table.hashtable.size()-table.tableSize<<endl;
+  	//	<<"\n Load factor: "
+  	//	<< loadFactor;
 
 	return 0;
 	}
