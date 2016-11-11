@@ -22,27 +22,7 @@ class Word{
 		//cout<<"\nkey is:"<< hash % size;
 		return hash % size;
 	}
-
-	
 };
-
-// Parse json to get Word
-	Word getWord(string w){
-
-		Word temp;
-
-		//cout<<"String is:"<<w;
-		size_t word_start = w.find('"', 0)+1;
-		size_t word_end = w.find('"', word_start)+1;
-		size_t definition_start = w.find('"', word_end)+1;
-		size_t definition_end = w.find('"', definition_start)+1; 
-
-		temp.word = w.substr(word_start , word_end - word_start -1);
-		temp.definition = w.substr(definition_start, definition_end - definition_start -1);
-
-		//cout<<"\nWord:"<<temp.word<<"\nDefinition:"<< temp.definition<<endl;
-		return temp;
-	}
 
 class Dictionary{
 	public:
@@ -50,7 +30,6 @@ class Dictionary{
 	int tableSize;
 
 	// Constructor
-
 	Dictionary(){
 		tableSize = 101;
 		hashtable.resize(tableSize);
@@ -58,7 +37,6 @@ class Dictionary{
 	// Insert a Word into the hashtable
 	void Insert(Word newWord){
 		int key = Word :: key(newWord.word,tableSize);
-		//hashtable.push_back(newWord);
 		hashtable.insert( hashtable.begin() + key, newWord); 
 	}
 
@@ -92,12 +70,51 @@ class Dictionary{
 		return temp;
 	}
 	
+	bool isPrime(int n){
+		for( int i=2; i < n; i++)
+			if( n%i )
+				return false;
+		return true;
+	}
+
 	// If table has high load factor then rehash
 	void Rehash(){
 
+		int newSize = 2*tableSize;
+		while(!isPrime(newSize))
+			newSize++;
+		tableSize = newSize;
+		hashtable.resize(newSize);
+
+		cout<< "\n\n\n\n\n\n\n\n\n\nRehashing table\n\n\n\n\n\n\n\n\n\n";
+		for(auto const& a : hashtable) 
+			if(a.word=="\0")
+				continue;
+			else{
+				Word temp = Delete(a.word);
+				Insert(temp);
+			}
 	}
 };
-	int main(int argc, char *argv[]){
+
+
+// Parse json to get Word
+Word getWord(string w){
+	Word temp;
+	//cout<<"String is:"<<w;
+	size_t word_start = w.find('"', 0)+1;
+	size_t word_end = w.find('"', word_start)+1;
+	size_t definition_start = w.find('"', word_end)+1;
+	size_t definition_end = w.find('"', definition_start)+1; 
+
+	temp.word = w.substr(word_start , word_end - word_start -1);
+	temp.definition = w.substr(definition_start, definition_end - definition_start -1);
+
+	//cout<<"\nWord:"<<temp.word<<"\nDefinition:"<< temp.definition<<endl;
+	return temp;
+}
+
+int main(int argc, char *argv[]){
 	/*
 	if(strcmp(argv[1],"dictionary.json")!=0){
 		cout<<"please run as \n./a.out dictionary.json\n";
@@ -106,14 +123,13 @@ class Dictionary{
 
 	fstream f;
 	string tmp;
-	int loadFactor = 0;
+	float loadFactor = 0.0;
+    int number_of_words= 0;
 	//Word temp;
 	Dictionary table;
 	
 	// Open dictionary.json file
     f.open(argv[1]);
-
-    int number_of_words= 0;
   	
     //Loop to parse through the file
     while(!f.eof()){	
@@ -122,17 +138,48 @@ class Dictionary{
         	break;
         Word newWord = getWord(tmp);
         table.Insert(newWord);
-  		//loadFactor = number_of_words/table.tableSize;
-  		//number_of_words= table.hashtable.size()/sizeof(newWord);
+  		number_of_words= table.hashtable.size()-table.tableSize;
+	    loadFactor = (float)number_of_words/table.tableSize;
+  		if( loadFactor > 1.0)
+  			table.Rehash();
   	}
 
   	table.Display();
-  	//cout<<"\nNumber of words in the dictionary: "
-  	//	<< number_of_words
-  	cout<<"\n Table size: "
-  		<< table.hashtable.size()-table.tableSize<<endl;
-  	//	<<"\n Load factor: "
-  	//	<< loadFactor;
+  	
+  	cout<<"\n\nNumber of words in the dictionary: "
+  		<< number_of_words
+  		<<"\nTable size: "
+  		<< table.tableSize
+  		<<"\nLoad factor: "
+  		<< loadFactor << endl;
+  	
+  	if(table.Contains("JOHNNY")){
+  			int key = Word :: key(input_word,table.tableSize);
+			cout<< table.hashtable[key].word << ": "<< table.hashtable[key].definition << endl;
+  		}
+  	else
+  		cout<<"Doesn't contain word\n";
+  	
+
+  	/*
+  	string input_word;	
+  	
+	while(1){
+  		cout<<"Enter word:";
+  		cin >> input_word;
+  		cout<< endl<<input_word;
+  		//if(c.eof())
+  		//	break;
+  		for(int i=0 ; input_word[i]='\0' ; i++)
+			input_word[i]=toupper(input_word[i]);
+  		if(table.Contains(input_word)){
+  			int key = Word :: key(input_word,table.tableSize);
+			cout<< table.hashtable[key].word << ": "<< table.hashtable[key].definition << endl;
+  		}
+  		else
+  			cout<<"Doesn't contain word\n";
+  	}
+	*/
 
 	return 0;
-	}
+}
