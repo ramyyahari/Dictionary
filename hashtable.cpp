@@ -1,5 +1,5 @@
 #include <iostream>
-#include <string.h>
+#include <string>
 #include <algorithm>
 #include <fstream>
 #include <vector>
@@ -124,15 +124,13 @@ class Dictionary{
 		cout<<endl<<newSize;
 
 		previoustableSize=tableSize;
-		cout<<endl<<newSize;
-
 		tableSize = newSize;
-		cout<<endl<<newSize;
-
 		hashtable.resize(newSize);
 
 		for( std::vector< vector<Word>>::size_type i = 0; i != hashtable.size(); i++ ){	 	
+			hashtable[i].resize(newSize);
 			vector<Word> temp = hashtable[i];
+
 			for( std::vector<Word>::size_type j = 0; j != temp.size(); j++ )
 		 		if(temp[j].word=="\0")
 		 			continue;
@@ -209,7 +207,7 @@ int main(int argc, char *argv[]){
   	cout<<"\n\nNumber of words in the dictionary: "
   		<< number_of_words
   		<<"\nTable size: "
-  		<< table.hashtable.size()
+  		<< table.tableSize
   		<<"\nLoad factor: "
   		<< loadFactor << endl;
 
