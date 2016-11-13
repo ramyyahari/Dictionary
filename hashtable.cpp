@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string.h>
-//#include <cstring>
 #include <algorithm>
 #include <fstream>
 #include <vector>
+#include <list>
 
 using namespace std;
 
@@ -15,68 +15,100 @@ class Word{
 		string definition;
 
 	// Calculate the key value for a string	
-	static unsigned int key( string w, int size ){
-
+	static unsigned int key( string s, int M ){
 		unsigned int hash = 0;
-		for( char c : w)
+		for( char c : s)
 			hash = 37 * hash + c;
 		//cout<<"\nkey is:"<< hash % size;
-		return hash % size;
+		return hash % M;
 	}
 };
 
 class Dictionary{
 	public:
-	vector <Word> hashtable;
+	vector < vector<Word> > hashtable;
 	int tableSize;
+	int previoustableSize;
 
 	// Constructor
-	Dictionary(){
+	Dictionary(){		
+		previoustableSize = 101;
 		tableSize = 101;
 		hashtable.resize(tableSize);
-	}
-	// Insert a Word into the hashtable
-	void Insert(Word newWord){
-		int key = Word :: key(newWord.word,tableSize);
-		//hashtable.insert( hashtable.begin() + key, newWord); 
-		hashtable[key] = newWord;
-		//cout<<"\nSize after insert:"<<hashtable.size();
-	}
-
-	void Display(){
-		for(auto const& a : hashtable) 
-			/*if(a.word=="\0")
-				continue;
-			else*/
-				cout << endl << a.word << ":" << a.definition;
 	}
 	
 	// Check if a word exists in the table
 	bool Contains(string word){
-		int key = Word :: key(word,tableSize);
-		//cout<<"\nLooking for word "<< word << "\nKey:"<< key << endl;
-		//cout<<"\nmeaning exists: "<<hashtable[key].definition;
-		if( !word.compare(hashtable[key].word))
-			return true;
+		long key = Word :: key(word,previoustableSize);
+		for(auto const& a : hashtable[key]) 
+			if( word.compare(a.word) == 0)
+				return true;
 		return false;
+	}
+	 
+	// Insert a Word into the hashtable
+	void Insert(Word newWord){
+		long key = Word :: key(newWord.word,tableSize);
+		//hashtable.insert( hashtable.begin() + key, newWord); 
+		if(Contains(newWord.word)){
+			vector<Word> temp = hashtable[key];
+		 	for( std::vector<Word>::size_type i = 0; i != temp.size(); i++ ){
+		 	//for(vector <Word>::iterator i= temp.begin(); i!= temp.end(); i++){
+				if(!newWord.word.compare(temp[i].word))
+					temp[i].definition = newWord.definition;		
+			}
+		}
+		hashtable[key].push_back(newWord);
+		//cout<<endl<<hashtable[key].word<<" "<<key;
+	}
+
+	void Display(){
+		for( std::vector< vector<Word>>::size_type i = 0; i != hashtable.size(); i++ ){	 	
+			vector<Word> temp = hashtable[i];
+			cout<< "\n new chain:"<< i<< endl;
+			for( std::vector<Word>::size_type j = 0; j != temp.size(); j++ )
+		 		if(temp[j].word=="\0")
+					continue;
+				else
+					cout << endl << temp[j].word << ":" << temp[j].definition;
+
+			}
 	}
 	
 	// Search and delete a word from the table  
 	Word Delete(string word){
-		int key = Word :: key(word,tableSize);
-		Word temp;
+		long key = Word :: key( word,previoustableSize );
+		Word null;
+		Word deleted_word;
 			
+		//cout<<"\nDelete word:"<<word;
+		null.word = null.definition = "\0";	
 		if(!Contains(word)){
-			return temp;
+			cout<<"\nWord not found";
+			return null;
 		}
+		for( std::vector< vector<Word>>::size_type i = 0; i != hashtable.size(); i++ ){	 	
+			vector<Word> temp = hashtable[i];
+			for( std::vector<Word>::size_type j = 0; j != temp.size(); j++ )
+		 		if(!word.compare(temp[j].word)){
+		 			deleted_word = temp[j];
+		 			temp.erase(temp.begin()+j);
+		 		}	
+		}	
+		/* 	
+	    for(vector<Word>::iterator i= hashtable[key].begin(); i!= hashtable[key].end(); i++)			
+			if(!word.compare(i.word))
+				temp = i.word;
 		
-		temp = hashtable[key];
-		hashtable.erase( hashtable.begin() + key);
-		return temp;
+		//cout<<"\nDeleted Word:"<< hashtable[key].word;
+		//hashtable[key] = null;
+		hashtable[key].erase(hashtable[key].begin()+i);*/
+		return deleted_word;
 	}
 	
 	bool isPrime(int n){
-		for( int i=2; i < n; i++)
+		cout<<"\n in fntin prime:"<<n;
+		for( int i=2; i <= n/2; i++)
 			if( n % i == 0 )
 				return false;
 		return true;
@@ -87,20 +119,36 @@ class Dictionary{
 
 		int newSize = 2*tableSize;
 		
-		//cout<< "\n\n\n\n\n\n\n\n\n\nRehashing table\n\n\n\n\n\n\n\n\n\n";
-		
 		while(!isPrime(newSize))
 			newSize++;
+		cout<<endl<<newSize;
+
+		previoustableSize=tableSize;
+		cout<<endl<<newSize;
+
 		tableSize = newSize;
+		cout<<endl<<newSize;
+
 		hashtable.resize(newSize);
 
+		for( std::vector< vector<Word>>::size_type i = 0; i != hashtable.size(); i++ ){	 	
+			vector<Word> temp = hashtable[i];
+			for( std::vector<Word>::size_type j = 0; j != temp.size(); j++ )
+		 		if(temp[j].word=="\0")
+		 			continue;
+		 		else{
+		 			Word reinsert_word = Delete(temp[j].word);
+					Insert(reinsert_word);
+		 		}
+		} 		
+		/*	
 		for(auto const& a : hashtable) 
 			if(a.word=="\0")
 				continue;
 			else{
 				Word temp = Delete(a.word);
 				Insert(temp);
-			}
+			}*/
 	}
 };
 
@@ -133,9 +181,10 @@ int main(int argc, char *argv[]){
 	float loadFactor = 0.0;
     int number_of_words= 0;
 	//Word temp;
+
 	Dictionary table;
 	
-	// Open dictionary.json file
+	// Open dictionary.json filet
     f.open(argv[1]);
   	
     //Loop to parse through the file
@@ -147,12 +196,12 @@ int main(int argc, char *argv[]){
         if(!table.Contains(newWord.word))
         	number_of_words++;
         table.Insert(newWord);
-  		//number_of_words= table.hashtable.size()-table.tableSize;
-	    //number_of_words= table.hashtable.size();
-		
+
 	    loadFactor = (float)number_of_words/table.tableSize;
-  		if( loadFactor > 1.0)
+  		if( loadFactor > 1.0){
+  			cout<<"\nRehashing table";
   			table.Rehash();
+  		}
   	}
 
   	table.Display();
@@ -160,9 +209,13 @@ int main(int argc, char *argv[]){
   	cout<<"\n\nNumber of words in the dictionary: "
   		<< number_of_words
   		<<"\nTable size: "
-  		<< table.tableSize
+  		<< table.hashtable.size()
   		<<"\nLoad factor: "
   		<< loadFactor << endl;
+
+  	//table.Delete("WALY");
+
+  	//table.Display();
   	
   	/*
   	if(table.Contains("EXPLAIN")){
@@ -187,7 +240,7 @@ int main(int argc, char *argv[]){
   		}
   	
   	*/
-
+/*
   	string input_word;	
   	
 	while(1){
@@ -207,7 +260,7 @@ int main(int argc, char *argv[]){
   		else
   			cout<<"Doesn't contain word\n";
   	}
-	
+*/	
 
 	return 0;
 }
