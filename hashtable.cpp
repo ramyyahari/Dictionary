@@ -184,13 +184,24 @@ int main(int argc, char *argv[]){
   		<<"\nLoad factor: "
   		<< loadFactor << endl<< endl;
 
-  	string input_word;	
-  	
+  	string input_word("");	
+  	//ifstream input;
+  	//streambuf * orig_cin = cin.rdbuf();
+  	char c[100];
   	//Querying mode
 
-	while(1){
-  		cout<<"Enter word:";
-  		cin >> input_word;
+  	cout<<"Enter word:";
+  		
+	while(cin >> input_word){
+  		
+  		/*cin.get(c,100);  
+  		int i=0;			
+  		while(c[i])
+  		{
+  			//if(c[i].eof())
+  			//	return 0;
+  			input_word.push_back(c[i]);  			
+  		}*/	
   		
   		for(int i=0 ; input_word[i] ; i++)
 			if(islower(input_word[i]))
@@ -205,6 +216,8 @@ int main(int argc, char *argv[]){
 		}
   		else
   			cout<<"Doesn't contain word\n";
+  	
+  	cout<<"Enter word:"; 	
   	}
 	return 0;
 }
