@@ -24,10 +24,12 @@ class Dictionary{
 	public:
 	vector < vector<Word> > hashtable;
 	int tableSize;
+	int number_of_words;
 	
 	// Constructor
 	Dictionary(){		
 		tableSize = 101;
+		number_of_words = 0;
 		//Allocating memory 
 		hashtable.resize(tableSize);
 	}
@@ -79,15 +81,12 @@ class Dictionary{
 			cout<<"\nWord not found";
 			return null;
 		}
-		for( std::vector< vector<Word>>::size_type i = 0 ; i != hashtable.size() ; i++ ){	 	
-			vector<Word> temp = hashtable[i];
-			for( std::vector<Word>::size_type j = 0 ; j != temp.size() ; j++ )
-		 		if( !word.compare(temp[j].word) ){
-		 			deleted_word = temp[j];
-		 			temp.erase( temp.begin()+j );
-		 		}	
-		}	
-		
+		vector<Word> temp = hashtable[key];
+		for( std::vector<Word>::size_type j = 0 ; j != temp.size() ; j++ )
+	 		if( !word.compare(temp[j].word) ){
+	 			deleted_word = temp[j];
+	 			temp.erase( temp.begin()+j );
+	 		}	
 		return deleted_word;
 	}
 	
@@ -141,16 +140,16 @@ Word getWord(string w){
 }
 
 int main(int argc, char *argv[]){
-	
-	if(strcmp(argv[1],"dictionary.json")!=0){
-		cout<<"please run as \n./a.out dictionary.json\n";
+
+	if( argc == 1 || ( strcmp( argv[1],"dictionary.json")!=0 ) ){
+		cout<<"\nPlease run as \n./a.out dictionary.json\n";
 		return 0;
 	}
 
 	fstream f;
 	string tmp;
 	float loadFactor = 0.0;
-    int number_of_words= 0;
+    //int number_of_words= 0;
 	
 	Dictionary table;
 	
@@ -164,15 +163,15 @@ int main(int argc, char *argv[]){
         	break;
         Word newWord = getWord(tmp);
         if( !table.Contains(newWord.word) )
-        	number_of_words++;
+        	table.number_of_words++;
         table.Insert( newWord );
-	    loadFactor = (float) number_of_words / table.tableSize;
+	    loadFactor = (float) table.number_of_words / table.tableSize;
   		if( loadFactor > 1.0)
   			table.Rehash();
   	}
 
   	cout<<"\nNumber of words in the dictionary: "
-  		<< number_of_words
+  		<< table.number_of_words
   		<<"\nTable size: "
   		<< table.tableSize
   		<<"\nLoad factor: "
