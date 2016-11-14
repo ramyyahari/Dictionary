@@ -12,11 +12,11 @@ class Word{
 		string definition;
 
 	// Calculate the key value for a string	
-	static unsigned int key( string s, int M ){
+	static unsigned int key( string word, int size ){
 		unsigned int hash = 0;
-		for( char c : s)
+		for( char c : word)
 			hash = 37 * hash + c;
-		return hash % M;
+		return hash % size;
 	}
 };
 
@@ -28,25 +28,27 @@ class Dictionary{
 	// Constructor
 	Dictionary(){		
 		tableSize = 101;
+		//Allocating memory 
 		hashtable.resize(tableSize);
 	}
 	
 	// Check if a word exists in the table
-	bool Contains(string word){
-		long key = Word :: key(word,tableSize);
-		for(auto const& a : hashtable[key]) 
-			if( word.compare(a.word) == 0)
+	bool Contains ( string word ){
+		long key = Word :: key( word,tableSize );
+		// Looping through table
+		for( auto const& temp : hashtable[key] ) 
+			if( word.compare ( temp.word ) == 0 )
 				return true;
 		return false;
 	}
 	 
 	// Insert a Word into the hashtable
 	void Insert(Word newWord){
-		long key = Word :: key(newWord.word,tableSize);
-		if(Contains(newWord.word)){
+		long key = Word :: key( newWord.word,tableSize );
+		if( Contains(newWord.word) ){
 			vector<Word> temp = hashtable[key];
-		 	for( std::vector<Word>::size_type i = 0; i != temp.size(); i++ ){
-				if(!newWord.word.compare(temp[i].word))
+		 	for( std::vector<Word>::size_type i = 0; i != temp.size() ; i++ ){
+				if( !newWord.word.compare( temp[i].word ) )
 					temp[i].definition = newWord.definition;		
 			}
 		}
@@ -57,8 +59,8 @@ class Dictionary{
 		for( std::vector< vector<Word>>::size_type i = 0; i != hashtable.size(); i++ ){	 	
 			vector<Word> temp = hashtable[i];
 			cout<< "\n new chain:"<< i<< endl;
-			for( std::vector<Word>::size_type j = 0; j != temp.size(); j++ )
-		 		if(temp[j].word=="\0")
+			for( std::vector<Word>::size_type j = 0 ; j != temp.size(); j++ )
+		 		if( temp[j].word == "\0" )
 					continue;
 				else
 					cout << endl << temp[j].word << ":" << temp[j].definition;
@@ -67,22 +69,22 @@ class Dictionary{
 	}
 	
 	// Search and delete a word from the table  
-	Word Delete(string word){
+	Word Delete( string word ){
 		long key = Word :: key( word, tableSize );
 		Word null;
 		Word deleted_word;
 			
 		null.word = null.definition = "\0";	
-		if(!Contains(word)){
+		if( !Contains(word) ){
 			cout<<"\nWord not found";
 			return null;
 		}
-		for( std::vector< vector<Word>>::size_type i = 0; i != hashtable.size(); i++ ){	 	
+		for( std::vector< vector<Word>>::size_type i = 0 ; i != hashtable.size() ; i++ ){	 	
 			vector<Word> temp = hashtable[i];
-			for( std::vector<Word>::size_type j = 0; j != temp.size(); j++ )
-		 		if(!word.compare(temp[j].word)){
+			for( std::vector<Word>::size_type j = 0 ; j != temp.size() ; j++ )
+		 		if( !word.compare(temp[j].word) ){
 		 			deleted_word = temp[j];
-		 			temp.erase(temp.begin()+j);
+		 			temp.erase( temp.begin()+j );
 		 		}	
 		}	
 		
@@ -98,32 +100,27 @@ class Dictionary{
 
 	// If table has high load factor then rehash
 	void Rehash(){
-
 		int newSize = 2*tableSize;
-		
-
 		while(!isPrime(newSize))
 			newSize++;
 		
 		//Temporary vector to hold all words while rehashing table
 		vector<Word> newList;
 		
-		for( std::vector< vector<Word>>::size_type i = 0; i != hashtable.size(); i++ ){	 	
-			
+		for( std::vector< vector<Word>>::size_type i = 0 ; i != hashtable.size() ; i++ ){	 		
 			vector<Word> temp_word = hashtable[i];
-
-			for( std::vector<Word>::size_type j = 0; j != temp_word.size(); j++ )
-		 		if(temp_word[j].word=="\0")
+			for( std::vector<Word>::size_type j = 0 ; j != temp_word.size() ; j++ )
+		 		if( temp_word[j].word == "\0" )
 		 			continue;
 		 		else
-					newList.push_back(temp_word[j]);
+					newList.push_back( temp_word[j] );
 		 				
 		}
-		hashtable.erase(hashtable.begin(),hashtable.end()); 
+		hashtable.erase( hashtable.begin(),hashtable.end() ); 
 		tableSize = newSize;
-		hashtable.resize(newSize);
+		hashtable.resize( newSize );
 
-		for(auto const& a : newList) 
+		for( auto const& a : newList ) 
 			Insert(a);
 	}
 };
@@ -133,14 +130,13 @@ class Dictionary{
 Word getWord(string w){
 	
 	Word temp;
-	size_t word_start = w.find('"', 0)+1;
-	size_t word_end = w.find('"', word_start)+1;
-	size_t definition_start = w.find('"', word_end)+1;
-	size_t definition_end = w.find('"', definition_start)+1; 
+	size_t word_start = w.find( '"', 0 )+1;
+	size_t word_end = w.find( '"', word_start )+1;
+	size_t definition_start = w.find( '"', word_end )+1;
+	size_t definition_end = w.find( '"', definition_start )+1; 
 
-	temp.word = w.substr(word_start , word_end - word_start -1);
-	temp.definition = w.substr(definition_start, definition_end - definition_start -1);
-
+	temp.word = w.substr( word_start , word_end - word_start -1 );
+	temp.definition = w.substr( definition_start , definition_end - definition_start -1 );
 	return temp;
 }
 
@@ -161,18 +157,16 @@ int main(int argc, char *argv[]){
 	// Open dictionary.json file
     f.open(argv[1]);
   	
-    //Loop to parse through the file
+    //Loop to  parse through the file
     while(!f.eof()){	
-        getline(f,tmp); 
+        getline( f,tmp ); 
         if(tmp=="\0")
         	break;
         Word newWord = getWord(tmp);
-        if(!table.Contains(newWord.word))
+        if( !table.Contains(newWord.word) )
         	number_of_words++;
-        table.Insert(newWord);
-
-	    loadFactor = (float)number_of_words/table.tableSize;
-  		
+        table.Insert( newWord );
+	    loadFactor = (float) number_of_words / table.tableSize;
   		if( loadFactor > 1.0)
   			table.Rehash();
   	}
@@ -184,40 +178,27 @@ int main(int argc, char *argv[]){
   		<<"\nLoad factor: "
   		<< loadFactor << endl<< endl;
 
-  	string input_word("");	
-  	//ifstream input;
-  	//streambuf * orig_cin = cin.rdbuf();
-  	char c[100];
+  	string input_word;	
+  	
   	//Querying mode
 
-  	cout<<"Enter word:";
+  	cout<<"\nEnter word:";
   		
-	while(cin >> input_word){
-  		
-  		/*cin.get(c,100);  
-  		int i=0;			
-  		while(c[i])
-  		{
-  			//if(c[i].eof())
-  			//	return 0;
-  			input_word.push_back(c[i]);  			
-  		}*/	
-  		
+	while(cin >> input_word){ 		
   		for(int i=0 ; input_word[i] ; i++)
-			if(islower(input_word[i]))
-				input_word[i]=toupper(input_word[i]);
-		if(table.Contains(input_word)){
-  			int key = Word :: key(input_word,table.tableSize);
+			if(islower( input_word[i]) )
+				input_word[i]=toupper( input_word[i] );
+		if( table.Contains( input_word ) ){
+  			int key = Word :: key( input_word , table.tableSize );
   			vector<Word> temp = table.hashtable[key];
-			for( std::vector<Word>::size_type i = 0; i != temp.size(); i++ ){
-				if(!input_word.compare(temp[i].word))
+			for( std::vector<Word>::size_type i = 0 ; i != temp.size() ; i++ ){
+				if( !input_word.compare( temp[i].word ) )
 					cout<< temp[i].word << ": "<< temp[i].definition << endl;
 			}
 		}
   		else
   			cout<<"Doesn't contain word\n";
-  	
-  	cout<<"Enter word:"; 	
+  	cout<<"\nEnter word:"; 	
   	}
 	return 0;
 }
